@@ -27,6 +27,7 @@ app.get('/', (req, res)=>{
 })
 
 app.get('/api/roblox/users', async (req,res) => {
+    console.log("trjuada")
     if (!req.headers || !req.headers.authorization) {
         res.statusCode = 422
         res.send("no parameters")
@@ -51,6 +52,7 @@ app.get('/api/roblox/users', async (req,res) => {
 	//.then(result => result.json())
 	.then(async response => {
         let user
+        console.log("test")
         await mongo().then(async (mongoose) => {
           
             user = await robloxSchema.findOne({
