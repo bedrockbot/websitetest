@@ -14,7 +14,7 @@ const  axios = require('axios');
 
 
 let initialPath = path.join(path.join(process.env.PORT || 3000, ".."), "client")
-
+console.log(process.env.PORT)
 // We are using our packages here
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(express.static(initialPath))
