@@ -75,8 +75,8 @@ app.get('/signup', (req, res) =>{
     res.sendFile(path.join(initialPath, "signup.html"))
 })
 app.get('/oauth2', (req, res) =>{
-    
     res.sendFile(path.join(initialPath, "oauth2.html"))
+    res.cookie('rememberme', 'yes', { maxAge: 900000, httpOnly: false});
 })
 
 
