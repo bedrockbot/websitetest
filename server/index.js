@@ -13,7 +13,7 @@ const { Mongoose } = require("mongoose");
 const  axios = require('axios');
 
 
-let initialPath = path.join(path.join(__dirname, ".."), "client")
+let initialPath = path.join(path.join(process.env.PORT || 3000, ".."), "client")
 
 // We are using our packages here
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -81,6 +81,6 @@ app.get('/oauth2', (req, res) =>{
 
 
 //Start your server on a specified port
-app.listen(port, ()=>{
+app.listen(process.env.PORT || 3000, ()=>{
     console.log(`Server is runing on port ${port}`)
 })
