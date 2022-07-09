@@ -23,7 +23,6 @@ app.use(cors())
 
 //You can use this to check if your server is working
 app.get('/', (req, res)=>{
-    console.log(initialPath)
     res.sendFile(path.join(initialPath, "home.html"))
 })
 
@@ -77,10 +76,12 @@ app.get('/signup', (req, res) =>{
 app.get('/oauth2', (req, res) =>{
     res.sendFile(path.join(initialPath, "oauth2.html"))
     const fragment = new URLSearchParams(req.originalUrl.slice(1));
+    console.log(req.originalUrl.slice(1))
 	const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
+    console.log(accessToken)
     if (accessToken && tokenType) {
-        res.cookie('access_token', accessToken, { maxAge: 900000000, httpOnly: false});
-        res.cookie('token_type', tokenType, { maxAge: 900000000, httpOnly: false});
+        res.cookie('access_token', accessToken, { maxAge: 9000000, httpOnly: false});
+        res.cookie('token_type', tokenType, { maxAge: 9000000, httpOnly: false});
     }
     
 })
