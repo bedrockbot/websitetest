@@ -24,6 +24,7 @@ app.use(cors())
 
 //You can use this to check if your server is working
 app.get('/', (req, res)=>{
+    console.log(initialPath)
     res.sendFile(path.join(initialPath, "home.html"))
 })
 
