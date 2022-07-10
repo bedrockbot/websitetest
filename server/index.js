@@ -26,54 +26,70 @@ app.get('/', (req, res)=>{
     res.sendFile(path.join(initialPath, "home.html"))
 })
 
+app.get('/api/roblox/hubs', async (req,res) => {
+
+})
+
+
+
 app.get('/api/roblox/users', async (req,res) => {
-    console.log("trjuada")
-    if (!req.headers || !req.headers.authorization) {
+    if (!req.headers || !req.headers.authorization || !req.headers.type) {
         res.statusCode = 422
         res.send("no parameters")
         return;
     }
-    var [access_token, token_type] = [req.headers.authorization.split(" ")[1], req.headers.authorization.split(" ")[0]]
+
+    var type = req.headers.type
+    if (type == "discord") {
+        var [access_token, token_type] = [req.headers.authorization.split(" ")[1], req.headers.authorization.split(" ")[0]]
     
     
-    if (!access_token || !token_type) {
-        res.statusCode = 422
-        res.send("not enough parameters")
-        return;
-    }
     
-    
-	axios.get('https://discord.com/api/users/@me', {
-		headers: {
-			authorization: `${token_type} ${access_token}`,
-		},
-	})
-    
-	//.then(result => result.json())
-	.then(async response => {
+        if (!access_token || !token_type) {
+            res.statusCode = 422
+            res.send("not enough parameters")
+            return;
+        }
+        
+        
+        axios.get('https://discord.com/api/users/@me', {
+            headers: {
+                authorization: `${token_type} ${access_token}`,
+            },
+        })
+        
+        //.then(result => result.json())
+        .then(async response => {
+            let user
+            await mongo().then(async (mongoose) => {
+              
+                user = await robloxSchema.findOne({
+                  _id: response.data.id,
+                });
+              })
+              console.log(user)
+            res.send(user)
+        })
+        .catch(console.error)
+    } else if (type == "roblox") {
         let user
-        console.log("test")
         await mongo().then(async (mongoose) => {
           
             user = await robloxSchema.findOne({
-              _id: response.data.id,
+                _id: req.headers.authorization,
             });
-          })
-          console.log(user)
-        res.send(user)
-	})
-	.catch(console.error)
+
+        })
+        if (user) {
+            res.send(true)
+            
+        } else {
+            res.send(false)
+        }
+    }
+    
    
     
-})
-//Route that handles login logic
-app.get('/login', (req, res) =>{
-    res.sendFile(path.join(initialPath, "login.html"))
-})
-
-//Route that handles signup logic
-app.get('/signup', (req, res) =>{
-    res.sendFile(path.join(initialPath, "signup.html"))
 })
 app.get('/oauth2', (req, res) =>{
     res.sendFile(path.join(initialPath, "oauth2.html"))
