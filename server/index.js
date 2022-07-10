@@ -64,7 +64,7 @@ app.get('/api/roblox/users', async (req,res) => {
             await mongo().then(async (mongoose) => {
               
                 user = await robloxSchema.findOne({
-                  _id: response.data.id,
+                  robloxid: response.data.id,
                 });
               })
               console.log(user)
