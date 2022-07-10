@@ -64,7 +64,7 @@ app.get('/api/roblox/users', async (req,res) => {
             await mongo().then(async (mongoose) => {
               
                 user = await robloxSchema.findOne({
-                  robloxid: response.data.id,
+                  _id: response.data.id,
                 });
               })
               console.log(user)
@@ -76,7 +76,7 @@ app.get('/api/roblox/users', async (req,res) => {
         await mongo().then(async (mongoose) => {
           
             user = await robloxSchema.findOne({
-                _id: req.headers.authorization,
+                robloxid: req.headers.authorization,
             });
 
         })
