@@ -21,10 +21,20 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
  extended: true})); 
 app.use(cors())
 
-//You can use this to check if your server is working
+
 app.get('/', (req, res)=>{
-    res.sendFile(path.join(initialPath, "home.html"))
+    res.sendFile(path.join(initialPath, "bedrockwebsite.html"))
 })
+app.get('/services', (req, res)=>{
+    res.sendFile(path.join(initialPath, "services.html"))
+})
+app.get('/dashboard', (req, res)=>{
+    res.sendFile(path.join(initialPath, "dashboard.html"))
+})
+app.get('/support', (req, res)=>{
+    res.sendFile(path.join(initialPath, "support.html"))
+})
+
 
 app.get('/api/roblox/hubs', async (req,res) => {
 
