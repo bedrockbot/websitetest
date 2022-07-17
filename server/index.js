@@ -12,11 +12,11 @@ const { Mongoose } = require("mongoose");
 
 const  axios = require('axios');
 
-
+app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
 let initialPath = path.join(path.join(__dirname, ".."), "client")
 // We are using our packages here
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(express.static(initialPath))
+//app.use(express.static(initialPath))
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
  extended: true})); 
 app.use(cors())
@@ -25,16 +25,6 @@ app.use(cors())
 app.get('/', (req, res)=>{
     res.sendFile(path.join(initialPath, "bedrockwebsite.html"))
 })
-app.get('/services', (req, res)=>{
-    res.sendFile(path.join(initialPath, "services.html"))
-})
-app.get('/dashboard', (req, res)=>{
-    res.sendFile(path.join(initialPath, "dashboard.html"))
-})
-app.get('/support', (req, res)=>{
-    res.sendFile(path.join(initialPath, "support.html"))
-})
-
 
 app.get('/api/roblox/hubs', async (req,res) => {
 
