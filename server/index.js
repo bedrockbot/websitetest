@@ -30,7 +30,13 @@ app.get('/api/roblox/hubs', async (req,res) => {
 
 })
 
-
+app.get("/hubs/:hubid/:appid?", (req, res) => {
+    if (req.params.appid) {
+        res.send("Serves application data")
+    } else {
+        res.send("Server hub data")
+    }
+})
 
 app.get('/api/roblox/users', async (req,res) => {
     if (!req.headers || !req.headers.authorization || !req.headers.type) {
