@@ -12,6 +12,8 @@ const { Mongoose } = require("mongoose");
 
 const  axios = require('axios');
 
+var session = require('express-session')
+app.use(session({ secret: "bedrocksession_!9=3ad9ha80idhw082h8q0ndba8whd98u2qaobdpswauwbd", cookie: { maxAge: 60000000 }}))
 app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
 let initialPath = path.join(path.join(__dirname, ".."), "client")
 // We are using our packages here
@@ -30,7 +32,7 @@ app.get('/api/roblox/hubs', async (req,res) => {
 
 })
 
-app.get("/hubs/:hubid/:appid?", (req, res) => {
+app.get("/hub/:hubid/:appid?", (req, res) => {
     if (req.params.appid) {
         res.send("Serves application data")
     } else {
@@ -39,24 +41,36 @@ app.get("/hubs/:hubid/:appid?", (req, res) => {
 })
 
 app.get('/api/roblox/users', async (req,res) => {
+      
     if (!req.headers || !req.headers.authorization || !req.headers.type) {
         res.statusCode = 422
         res.send("no parameters")
         return;
     }
-
     var type = req.headers.type
     if (type == "discord") {
         var [access_token, token_type] = [req.headers.authorization.split(" ")[1], req.headers.authorization.split(" ")[0]]
-    
-    
     
         if (!access_token || !token_type) {
             res.statusCode = 422
             res.send("not enough parameters")
             return;
         }
-        
+        if (req.session.duser) {
+            if (req.session.ruser) {
+                return req.session.ruser
+            }
+            let user
+            await mongo().then(async (mongoose) => {
+              
+                user = await robloxSchema.findOne({
+                  _id: response.data.id,
+                });
+              })
+            
+            res.send(user)
+            req.session.ruser = user
+        }
         
         axios.get('https://discord.com/api/users/@me', {
             headers: {
@@ -66,15 +80,22 @@ app.get('/api/roblox/users', async (req,res) => {
         
         //.then(result => result.json())
         .then(async response => {
+            
             let user
             await mongo().then(async (mongoose) => {
               
                 user = await robloxSchema.findOne({
                   _id: response.data.id,
                 });
-              })
-              console.log(user)
-            res.send(user)
+                res.send(user)
+                req.session.ruser = user
+                req.session.duser = response.data
+                req.session.save()
+            }).catch(error => {
+                req.session.duser = response.data
+                console.log(error)
+            })
+            
         })
         .catch(console.error)
     } else if (type == "roblox") {
