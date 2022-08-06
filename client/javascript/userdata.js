@@ -1,6 +1,6 @@
 window.onload = () => {
 
-
+    document.getElementById('login').href = "https://discord.com/api/oauth2/authorize?client_id=732263433579397151&redirect_uri=http%3A%2F%2Flocalhost:3000%2Foauth2&response_type=token&scope=identify%20guilds" + (window.location.pathname ? "&state=" + window.location.pathname:"")
     function g(cname) {let name = cname + "=";let decodedCookie = decodeURIComponent(document.cookie);let ca = decodedCookie.split(';');for(let i = 0; i <ca.length; i++) {let c = ca[i];while (c.charAt(0) == ' ') {c = c.substring(1);}if (c.indexOf(name) == 0) {return c.substring(name.length, c.length);}}return "";}
 
 
