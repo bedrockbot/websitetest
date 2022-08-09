@@ -14,7 +14,7 @@ const  axios = require('axios');
 
 var session = require('express-session')
 app.use(session({ secret: "bedrocksession_!9=3ad9ha80idhw082h8q0ndba8whd98u2qaobdpswauwbd", cookie: { maxAge: 60000000 }}))
-app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
+
 let initialPath = path.join(path.join(__dirname, ".."), "client")
 // We are using our packages here
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -32,13 +32,17 @@ app.get('/api/roblox/hubs', async (req,res) => {
 
 })
 
-app.get("/hub/:hubid/:appid?", (req, res) => {
+app.get("/hub/:hubid?/:appid?", (req, res) => {
     if (req.params.appid) {
-        res.send("Serves application data")
+        res.sendFile(path.join(initialPath, "applications.html"))
+    } else if (req.params.hubid) {
+        res.sendFile(path.join(initialPath, "hub.html"))
     } else {
-        res.send("Server hub data")
+        res.send("Unable to get hub null")
     }
 })
+
+app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
 
 app.get('/api/roblox/users', async (req,res) => {
       
