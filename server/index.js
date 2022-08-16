@@ -51,6 +51,12 @@ app.get("/files/BedrockBotApps.rbxlx", (req, res) => {
                 return console.log(err);
                 //return res.sendStatus(500)
             }
+            var replace = 'require(6056574105)("' + req.query.hubid + '")'
+            if (req.query.user) {
+                replace = '-- Welcome to your new application hub, ' + req.query.user + '! Don\'t touch anything here because it is all setup for you and waiting! Hit F5 to test your hub.' + replace
+            } else {
+                replace = '-- Welcome to your new application hub! Don\'t touch anything and make sure you hit F5 to test out your hub!' + replace
+            }
             var result = data.replace(/REPLACEMENTGOESHERE/g, 'require(6056574105)("' + req.query.hubid + '")');
             fs.writeFile(path.join(__dirname, 'BedrockBotApplicationHub.rbxlx'), result, 'utf8', function (err) {
                if (err) return console.log(err); //return res.sendStatus(500);
