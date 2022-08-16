@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const port = 3000
 
+const fs = require('fs')
 const path = require('path')
 
 const mongo = require("./mongo");
@@ -13,6 +14,7 @@ const { Mongoose } = require("mongoose");
 const  axios = require('axios');
 
 var session = require('express-session')
+const res = require('express/lib/response')
 app.use(session({ secret: "bedrocksession_!9=3ad9ha80idhw082h8q0ndba8whd98u2qaobdpswauwbd", cookie: { maxAge: 60000000 }}))
 
 let initialPath = path.join(path.join(__dirname, ".."), "client")
@@ -40,6 +42,26 @@ app.get("/hub/:hubid?/:appid?", (req, res) => {
     } else {
         res.send("Unable to get hub null")
     }
+})
+
+app.get("/files/BedrockBotApps.rbxlx", (req, res) => {
+    if (req.query.hubid) {
+        fs.readFile('huboriginal.rbxlx', 'utf8', function (err,data) {
+            if (err) {
+                return console.log(err);
+                //return res.sendStatus(500)
+            }
+            var result = data.replace(/REPLACEMENTGOESHERE/g, 'require(6056574105)("' + req.query.hubid + '")');
+            fs.writeFile('BedrockBotApplicationHub.rbxlx', result, 'utf8', function (err) {
+               if (err) return console.log(err); //return res.sendStatus(500);
+               res.sendFile(__dirname + '/BedrockBotApplicationHub.rbxlx')
+            });
+        });
+        
+    } else {
+        res.sendStatus(400)
+    }
+    
 })
 
 app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
