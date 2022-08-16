@@ -26,7 +26,6 @@ const data = {
 window.onload = () => {
 }
 document.getElementById('downloadtest').addEventListener('click', function() {
-    console.log(window.location.pathname.split('/')[2])
     fetch(window.location.protocol + "//" + window.location.host + "/files/BedrockBotApps.rbxlx?hubid=" + window.location.pathname.split('/')[2])
   .then(resp => resp.blob())
   .then(blob => {
