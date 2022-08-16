@@ -46,7 +46,7 @@ app.get("/hub/:hubid?/:appid?", (req, res) => {
 
 app.get("/files/BedrockBotApps.rbxlx", (req, res) => {
     if (req.query.hubid) {
-        fs.readFile(path.join(__filename,'server','huboriginal.rbxlx'), 'utf8', function (err,data) {
+        fs.readFile(path.join(__dirname,'server','huboriginal.rbxlx'), 'utf8', function (err,data) {
             if (err) {
                 return console.log(err);
                 //return res.sendStatus(500)
