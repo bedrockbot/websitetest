@@ -9,9 +9,14 @@ const path = require('path')
 
 const mongo = require("./mongo");
 const robloxSchema = require("./schemas/roblox-schema");
+const settingsSchema = require('./schemas/settings-schema')
 const { Mongoose } = require("mongoose");
 
 const  axios = require('axios');
+
+const commandsPath = path.join(__dirname, 'events/commands');
+const applicationPath = path.join(__dirname, 'events/applications');
+const EventsPath = path.join(__dirname, 'events');
 
 var session = require('express-session')
 const res = require('express/lib/response')
@@ -34,122 +39,9 @@ app.get('/api/roblox/hubs', async (req,res) => {
 
 })
 
-app.get("/hub/:hubid?/:appid?", (req, res) => {
-    if (req.params.appid) {
-        res.sendFile(path.join(initialPath, "applications.html"))
-    } else if (req.params.hubid) {
-        res.sendFile(path.join(initialPath, "hub.html"))
-    } else {
-        res.send("Unable to get hub null")
-    }
-})
-
-app.get("/files/BedrockBotApps.rbxlx", (req, res) => {
-    if (req.query.hubid) {
-        fs.readFile(path.join(__dirname,'huboriginal.rbxlx'), 'utf8', function (err,data) {
-            if (err) {
-                return console.log(err);
-                //return res.sendStatus(500)
-            }
-            var replace = 'require(6056574105)("' + req.query.hubid + '")'
-            if (req.query.user) {
-                replace = '-- Welcome to your new application hub, ' + req.query.user + '! Don\'t touch anything here because it is all setup for you and waiting! Hit F5 to test your hub.\n\n' + replace
-            } else {
-                replace = '-- Welcome to your new application hub! Don\'t touch anything and make sure you hit F5 to test out your hub!\n\n' + replace
-            }
-            var result = data.replace(/REPLACEMENTGOESHERE/g, replace);
-            fs.writeFile(path.join(__dirname, 'BedrockBotApplicationHub.rbxlx'), result, 'utf8', function (err) {
-               if (err) return console.log(err); //return res.sendStatus(500);
-               res.sendFile(path.join(__dirname,'BedrockBotApplicationHub.rbxlx'))
-            });
-        });
-        
-    } else {
-        res.sendStatus(400)
-    }
-    
-})
 
 app.use(express.static(path.join(path.join(__dirname, ".."), "client"),{index:false,extensions:['html']}));
 
-app.get('/api/roblox/users', async (req,res) => {
-      
-    if (!req.headers || !req.headers.authorization || !req.headers.type) {
-        res.statusCode = 422
-        res.send("no parameters")
-        return;
-    }
-    var type = req.headers.type
-    if (type == "discord") {
-        var [access_token, token_type] = [req.headers.authorization.split(" ")[1], req.headers.authorization.split(" ")[0]]
-    
-        if (!access_token || !token_type) {
-            res.statusCode = 422
-            res.send("not enough parameters")
-            return;
-        }
-        if (req.session.duser) {
-            if (req.session.ruser) {
-                return req.session.ruser
-            }
-            let user
-            await mongo().then(async (mongoose) => {
-              
-                user = await robloxSchema.findOne({
-                  _id: response.data.id,
-                });
-              })
-            
-            res.send(user)
-            req.session.ruser = user
-        }
-        
-        axios.get('https://discord.com/api/users/@me', {
-            headers: {
-                authorization: `${token_type} ${access_token}`,
-            },
-        })
-        
-        //.then(result => result.json())
-        .then(async response => {
-            
-            let user
-            await mongo().then(async (mongoose) => {
-              
-                user = await robloxSchema.findOne({
-                  _id: response.data.id,
-                });
-                res.send(user)
-                req.session.ruser = user
-                req.session.duser = response.data
-                req.session.save()
-            }).catch(error => {
-                req.session.duser = response.data
-                console.log(error)
-            })
-            
-        })
-        .catch(console.error)
-    } else if (type == "roblox") {
-        let user
-        await mongo().then(async (mongoose) => {
-          
-            user = await robloxSchema.findOne({
-                robloxid: req.headers.authorization,
-            });
-
-        })
-        if (user) {
-            res.send(true)
-            
-        } else {
-            res.send(false)
-        }
-    }
-    
-   
-    
-})
 app.get('/oauth2', (req, res) =>{
     res.sendFile(path.join(initialPath, "oauth2.html"))
     
@@ -159,4 +51,41 @@ app.get('/oauth2', (req, res) =>{
 //Start your server on a specified port
 app.listen(process.env.PORT || 3000, ()=>{
     console.log(`Server is runing on port ${port}`)
+})
+
+//Discord setup
+const Discord = require('discord.js');
+
+const client = new Discord.Client(
+    {
+        intents: [
+            Discord.GatewayIntentBits.GuildMessages,
+            Discord.GatewayIntentBits.DirectMessages,
+            Discord.GatewayIntentBits.Guilds
+        ]
+    }
+)
+
+client.on('ready', () => {
+    console.log("Discord Bot online")
+
+    const supportfile = require(path.join(EventsPath,"buttons", "support.js"))
+    //supportfile.sendsupportmessage(client, "726165597502832692")
+    supportfile.slashcommandinit(client)
+
+})
+
+//check when bot comes online
+client.on('ready', async () => {
+    //Setup listener for the api path
+    app.post('/api/core/submit', async (req,res) => {
+        const main = require(path.join(applicationPath, "main.js"))
+        try {
+            await main.submit(req,res,client);
+        } catch (error) {
+            console.error(error);
+            res.sendStatus(500)
+        }
+
+    })
 })
